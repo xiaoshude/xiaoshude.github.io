@@ -51,7 +51,7 @@ you'll know when you need something . if you aren't sure if you need it , you do
 
 这是我说的「自然」
 
-<i class="alert bg-info">把原来博客的文章移到这里做第一篇。望得始终。</i>
+<i class="btn">把原来博客的文章移到这里做第一篇。望得始终。</i>
 
 <hr>
 <p class="text-right text-muted">
