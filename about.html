@@ -1,0 +1,202 @@
+---
+layout: page
+title: "About"
+description: "Hey, this is Hux."
+header-img: "img/about-bg.jpg"
+---
+
+<!-- Language Selector -->
+<div class="form-inline">
+    <select class="form-control" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
+        <option value="0" selected> 中文 Chinese </option>
+        <option value="1"> 英文 English </option>
+    </select>
+</div>
+
+<!-- Chinese Version -->
+<div class="zh post-container">
+    <h5>关于我</h5>
+    <p>
+        90后，直，单身，谷歌粉，苹果粉
+    </p>
+    <p>
+        爱音乐，爱野营，爱自由，爱发掘一切美好的东西。
+    </p>
+    <p>
+        喜欢设计，写代码，修东西，在厨房鼓弄好吃的。
+    </p>
+    <p>
+        崇尚简洁，自然
+    </p>
+    <p>
+        还有喜欢王小波，村上。
+    </p>
+    <p>
+        迄今为止感觉最好看的一本书——《黄金时代》，如果一定要说两本，再加上《当我谈跑步时 我谈些什么》
+    </p>
+    <h5>关于 "fjywan"</h5>
+    <p>
+        fjywan，我名字的音译，参考了耶鲁拼音系统。 类似威妥玛拼音，其实老见着了——Kungfu,Taipei，Peking​…也是台湾用的拼音方案。 压知道威妥玛这个词后，感觉到处都是这东西，下了雨一般，平日不见的"蚯蚓"忽然从地下冒出来了。 <br>
+        其实呢蚯蚓一直在，但只有“下雨”后才意识到。
+    </p>
+    <p>
+        “理论决定你能观察到什么”，约莫第一次见这句话是在初中。<br>
+        当时的感觉…震撼？特别？ anyway，可能是唯一一句，记到现在、并不断被佐证。<br>
+        直到刚写下这些东西时，才想起应该查查的，发现这并不是爱因斯坦的原话
+    </p>
+    <blockquote>
+        <p>
+            你能够观察到什么取决于你使用了何种理论。<br>
+            正是理论决定了你能观察到的东西。<br>
+            ——艾尔伯特·爱因斯坦
+        </p>
+    </blockquote>
+    <p>
+        有点惊讶，一直以为自己并不是这般的，对新奇的麻木、对变化的习以为常。<br>
+        我没有好奇过kungfu的拼写，直到刚刚<br>
+
+        在我刚接触电脑的很多年里，没有好奇过计算机怎样响应我的操作、完成这么多神奇的东西<br>
+    </p>
+    <p></p>
+    <p>
+        (注册时发现我名字的全拼已被占用了，然后知道了上面这些~)
+    </p>
+
+    <hr/>
+    <p class="text-right text-muted">
+        写于：2014年9月<br>
+        修改于：2016年3月20日
+    </p>
+</div>
+
+<!-- English Version -->
+<div class="en post-container">
+    <h5>about me</h5>
+    <p>
+        Post-90’s, Straight, Available. Google fan，Apple fan
+    </p>
+    <p>
+        Like music, camping and freedom, love to explore all the good things.
+    </p>
+    <p>
+        Like design, coding, fixing things and making delicious food in the kitchen.
+    </p>
+    <p>
+        Advocating concise and natural
+    </p>
+    <p>
+        Like Wang Xiaobao and Haruki Murakami
+    </p>
+    <p>
+        One of the best books ever read is Wang Xiao-bo ' s The Golden Time.
+
+        If have to say another，plus what I talk about when I talk about running by Haruki Murakami
+    </p>
+    <hr/>
+    <p class="text-right text-muted">
+        Written in：2014/9<br>
+        Modified in：2016/3/20
+    </p>
+</div>
+
+<!-- Handle Language Change -->
+<script type="text/javascript">
+    // get nodes
+    var $zh = document.querySelector(".zh");
+    var $en = document.querySelector(".en");
+    var $select = document.querySelector("select");
+
+    // bind hashchange event
+    window.addEventListener('hashchange', _render);
+
+    // handle render
+    function _render(){
+        var _hash = window.location.hash;
+        // en
+        if(_hash == "#en"){
+            $select.selectedIndex = 1;
+            $en.style.display = "block";
+            $zh.style.display = "none";
+        // zh by default
+        }else{
+            // not trigger onChange, otherwise cause a loop call.
+            $select.selectedIndex = 0;
+            $zh.style.display = "block";
+            $en.style.display = "none";
+        }
+    }
+
+    // handle select change
+    function onLanChange(index){
+        if(index == 0){
+            window.location.hash = "#zh"
+        }else{
+            window.location.hash = "#en"
+        }
+    }
+
+    // init
+    _render();
+</script>
+
+
+
+{% if site.duoshuo_username %}
+<!-- 多说评论框 start -->
+<div class="comment">
+    <div class="ds-thread"
+    {% if site.duoshuo_username == "huxblog" %}
+        data-thread-id="1187623191091085319"
+    {% else %}
+        data-thread-key="{{site.duoshuo_username}}/about"
+    {% endif %}
+
+    data-title="{{page.title}}"
+    data-url="{{site.url}}/about/"></div>
+</div>
+<!-- 多说评论框 end -->
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User hacking by Hux
+    var _user = '{{site.duoshuo_username}}';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+{% endif %}
+
+
+{% if site.disqus_username %}
+<!-- disqus 评论框 start -->
+<div class="comment">
+    <div id="disqus_thread" class="disqus-thread">
+
+    </div>
+</div>
+<!-- disqus 评论框 end -->
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "{{site.disqus_username}}";
+    var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
+    var disqus_url = "{{site.url}}{{page.url}}";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+{% endif %}
