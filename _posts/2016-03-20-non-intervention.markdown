@@ -50,8 +50,9 @@ you'll know when you need something . if you aren't sure if you need it , you do
 指导身体运作的事你并不擅长，更好的做法就是别干预，身体自会帮你判断需要什么
 
 这是我说的「自然」
-
-<i class="btn">把原来博客的文章移到这里做第一篇。望得始终。</i>
+<p class="text-right">
+  <i class="btn">把原来博客的文章移到这里做第一篇。『留初心，望得始终。』</i>
+</p>
 
 <hr>
 <p class="text-right text-muted">
