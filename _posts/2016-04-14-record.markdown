@@ -2,7 +2,7 @@
 layout: post
 title:  "乘降记录"
 author: "fjywan"
-header-img: "img/post-bg-02.jpg"
+header-img: "img/stock-photo.jpg"
 date:   2016-05-04 19:40:00 +0800
 ---
 
