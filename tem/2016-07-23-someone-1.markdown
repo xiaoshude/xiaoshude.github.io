@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: 
 title:  带粘粘胶的桃更甜
 author: "fjywan"
 header-img: "img/post-bg-02.jpg"
