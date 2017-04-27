@@ -21,8 +21,8 @@
 
 ##### 总结下：
 两个纬度的复用：
-情景复用：为每个情景积累base controller；
-功能复用：为每个功能积累service；
+- 情景复用：为每个情景积累base controller；
+- 功能复用：为每个功能积累service；
 
 
 
