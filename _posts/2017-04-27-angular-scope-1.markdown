@@ -1,3 +1,11 @@
+---
+layout:
+titletemp:  angular scope(1)
+author: "fjywan"
+header-img: "img/post-bg-02.jpg"
+date:   2017-04-27 15:10:00 +0800
+---
+
 ### 当想稍后执行一段代码的时候
 js中延迟执行一段代码很常见，
 （执行到setTimeout()的时候发生了什么：把setTimeout里的函数推进一个队列，然后跳过接着执行下面的代码，当前执行环境结束后，检查异步队列，延迟时间是否到，到了执行，没到的话，执行其他的）
