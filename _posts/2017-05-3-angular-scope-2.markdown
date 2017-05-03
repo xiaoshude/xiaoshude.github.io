@@ -1,5 +1,5 @@
 ---
-  layout: post
+layout: post
 title: angular scope(2)
 author: "fjywan"
 header-img: "img/post-bg-02.jpg"
