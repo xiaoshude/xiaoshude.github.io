@@ -9,8 +9,8 @@
 实现办法：base controller, 每个情景抽象为一个base controller，当自己的业务隶属于这个情景的时候，只需要用业务controller extends 这个base controller，你的controller就具有运行起整个情景的能力。
 
 现在写controller就变成了这样两件事：
-1.在情景的整个生命周期内嵌入自定义逻辑（如果需要的话）
-2.声明生命周期中所需常量。
+1. 在情景的整个生命周期内嵌入自定义逻辑（如果需要的话）
+2. 声明生命周期中所需常量。
 
 ##### 再来看一个例子：
 有好几个页面都需要这样一个功能：划线添加Beacon
@@ -21,8 +21,8 @@
 
 ##### 总结下：
 两个纬度的复用：
-情景复用：为每个情景积累base controller；
-功能复用：为每个功能积累service；
+- 情景复用：为每个情景积累base controller；
+- 功能复用：为每个功能积累service；
 
 
 
