@@ -1,6 +1,6 @@
 ---
 layout: post
-title: angular scope(续)
+title: angular scope (续)
 author: "fjywan"
 header-img: "img/post-bg-02.jpg"
 date:   2017-05-03 16:50:00 +0800
