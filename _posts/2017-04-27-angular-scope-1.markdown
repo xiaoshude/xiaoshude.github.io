@@ -1,6 +1,6 @@
 ---
 layout: post
-title: angular scope(1)
+title: angular scope
 author: "fjywan"
 header-img: "img/post-bg-02.jpg"
 date:   2017-04-27 15:10:00 +0800
