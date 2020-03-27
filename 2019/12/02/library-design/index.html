@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="fjywan's blog" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="先讲四个实例，最后总结好用的衡量标准。每个实例会先举个例子，然后对这个例子改进 -&amp;gt; 总结 -&amp;gt; 应用。中间稍微提下 background, 以此看到每个选择背后的权衡。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="易用性及库设计">
+<meta property="og:url" content="http:&#x2F;&#x2F;fjywan.com&#x2F;2019&#x2F;12&#x2F;02&#x2F;library-design&#x2F;index.html">
+<meta property="og:site_name" content="fjywan&#39;s blog">
+<meta property="og:description" content="先讲四个实例，最后总结好用的衡量标准。每个实例会先举个例子，然后对这个例子改进 -&amp;gt; 总结 -&amp;gt; 应用。中间稍微提下 background, 以此看到每个选择背后的权衡。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;code.visualstudio.com&#x2F;assets&#x2F;api&#x2F;language-extensions&#x2F;language-server-extension-guide&#x2F;lsp-languages-editors.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s3.amazonaws.com&#x2F;media-p.slid.es&#x2F;uploads&#x2F;559068&#x2F;images&#x2F;6552941&#x2F;67f6202aaa9687286f18361633c3567f.jpg">
+<meta property="og:updated_time" content="2020-03-27T15:02:14.691Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;code.visualstudio.com&#x2F;assets&#x2F;api&#x2F;language-extensions&#x2F;language-server-extension-guide&#x2F;lsp-languages-editors.png">
+
+<link rel="canonical" href="http://fjywan.com/2019/12/02/library-design/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>易用性及库设计 | fjywan's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">fjywan's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">博客升级完成，迁移中...</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/xiaoshude" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://fjywan.com/2019/12/02/library-design/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="fjywan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fjywan's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          易用性及库设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-12-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-12-02T00:00:00+08:00">2019-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-27 23:02:14" itemprop="dateModified" datetime="2020-03-27T23:02:14+08:00">2020-03-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>先讲四个实例，最后总结好用的衡量标准。<br>每个实例会先举个例子，然后对这个例子改进 -&gt; 总结 -&gt; 应用。中间稍微提下 background, 以此看到每个选择背后的权衡。</p>
+<a id="more"></a>
+
+<h2 id="相关库"><a href="#相关库" class="headerlink" title="相关库"></a>相关库</h2><p>先介绍下后面例子和应用部分提到的库，大概知道这些库是干什么的。</p>
+<ul>
+<li>Acribus<ul>
+<li>把资源和视图声明 - Acribus -&gt; 组件 props</li>
+</ul>
+</li>
+<li>acr-cli<ul>
+<li>Api doc -&gt; 资源描述</li>
+<li>Api doc -&gt; mock 数据</li>
+<li>Api doc 格式检查</li>
+</ul>
+</li>
+<li>Schart<ul>
+<li>图表配置对象 - schart -&gt; 基本图形配置对象 -&gt; render -&gt; canvas api / svg</li>
+</ul>
+</li>
+<li>wms-test<ul>
+<li>用例声明对象 - wms-test -&gt; 用例</li>
+</ul>
+</li>
+<li>acribus-vscode<ul>
+<li>代码注释预览 Api doc</li>
+<li>记录Api doc 变更</li>
+<li>Api doc 变更时校验代码（progressing）</li>
+</ul>
+</li>
+</ul>
+<h2 id="例1"><a href="#例1" class="headerlink" title="例1"></a>例1</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcA</span>(<span class="params">parameterA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterA)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcB</span>(<span class="params">parameterB, parameterA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterB) / funcA(parameterA)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcC</span>(<span class="params">parameterC, parameterB, parameterA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterC) / funcB(parameterB, parameterA)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcD</span>(<span class="params">parameterD, parameterC, parameterB, parameterA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterD) / funcC(parameterC, parameterB, parameterA)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果现在 funcA 需要多接受一个参数 parameter0, 怎么办？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcA</span>(<span class="params">parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>funcD 依赖 funcC 依赖 funcB 依赖 funcA</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcA</span>(<span class="params">parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcB</span>(<span class="params">parameterB, parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcC</span>(<span class="params">parameterC, parameterB, parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcD</span>(<span class="params">parameterD, parameterC, parameterB, parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现什么问题了吗?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcA</span>(<span class="params">parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterA)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcB</span>(<span class="params">parameterB, resultOfFuncA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterB) / resultOfFuncA</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcC</span>(<span class="params">parameterC, resultOfFuncB</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterC) / resultOfFuncB</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">funcD</span>(<span class="params">parameterD, resultOfFuncC</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(parameterD) / resultOfFuncC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是… 使用时？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">funcD(parameterD,</span><br><span class="line">  funcC(parameterC,</span><br><span class="line">    funcB(parameterB,</span><br><span class="line">      funcA(parameterA)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这时候使用就比较麻烦了。</p>
+<p>可以写个 helper:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">helper</span>(<span class="params">parameterD, parameterC, parameterB, parameterA, parameter0</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> funcD(parameterD,</span><br><span class="line">    funcC(parameterC,</span><br><span class="line">      funcB(parameterB,</span><br><span class="line">        funcA(parameterA)</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><h4 id="1-form-组件的设计"><a href="#1-form-组件的设计" class="headerlink" title="1. form 组件的设计"></a>1. form 组件的设计</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;el-form&gt;</span><br><span class="line">    &lt;el-form-item&gt;</span><br><span class="line">      &lt;el-select v-model=<span class="string">"form.region"</span> placeholder=<span class="string">"请选择活动区域"</span>&gt;</span><br><span class="line">        &lt;el-option label=<span class="string">"区域一"</span> value=<span class="string">"shanghai"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">el-option</span>&gt;</span></span></span><br><span class="line">        &lt;el-option label=<span class="string">"区域二"</span> value=<span class="string">"beijing"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">el-option</span>&gt;</span></span></span><br><span class="line">      &lt;<span class="regexp">/el-select&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>el-form-item&gt;</span><br><span class="line">  &lt;el-form/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在对比下两种写法：</p>
+<p>左边：每个函数依赖的是另一个函数的【参数】，而参数和实现相关，所以间接依赖另一个函数的实现。<br>右边：依赖的是【接口】，只要是数字就可以。</p>
+<p>Summary：</p>
+<ul>
+<li>当存在依赖，应该为这种依赖建立媒介 (接口、或协议)；</li>
+<li>依赖接口或者协议，而不是实现细节。</li>
+</ul>
+<p>有个单词比较恰当：abstraction – 接口 / 协议</p>
+<h4 id="2-VScode"><a href="#2-VScode" class="headerlink" title="2. VScode"></a>2. VScode</h4><p>VScode 相对一般文本编辑器的亮点：</p>
+<ul>
+<li>代码理解（code understanding）</li>
+<li>调试 (debug)</li>
+</ul>
+<p>Vscode 通过插件实现的代码理解，中间的桥梁就是 Language Server Protocol(LSP)，<br>一个基于 JSON 的文本协议，用于进程间通信。</p>
+<img style="" data-natural-width="709" data-natural-height="357" data-lazy-loaded="" src="https://code.visualstudio.com/assets/api/language-extensions/language-server-extension-guide/lsp-languages-editors.png">
+
+<p>最终达到什么效果呢：</p>
+<ul>
+<li>VScode 里发生的每个动作，外面都能感知，并施加影响</li>
+<li>沟通的规则就落在这些协议里</li>
+</ul>
+<p>Summary：</p>
+<p>如何让库足够灵活且易扩展</p>
+<ul>
+<li>抽象内部关键动作，并给予外部通知及干预办法。</li>
+<li>为这种沟通建立完整规则（协议）</li>
+</ul>
+<h2 id="例2"><a href="#例2" class="headerlink" title="例2"></a>例2</h2><p>Background: 下面的代码摘自 acr-cli 的API文档解析模块，模块本身很小而且功能不复杂。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processEnums</span>(<span class="params">schema, enums</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!enums) &#123;</span><br><span class="line">    warn.enums()</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">const</span> key <span class="keyword">in</span> enums) &#123;</span><br><span class="line">    <span class="keyword">const</span> targetField = schema.find(<span class="function"><span class="params">item</span> =&gt;</span> (item.key === key))</span><br><span class="line">    <span class="keyword">if</span> (targetField) &#123;</span><br><span class="line">      targetField.enum = enums[key].enum</span><br><span class="line">      targetField.type = <span class="string">'select'</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processDetail</span> (<span class="params">schema, detail</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  processEnums(schema, detail.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processCreate</span> (<span class="params">schema, create</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  processEnums(schema, create.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processSearch</span>(<span class="params">schema, search</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  processEnums(schema, search.enums)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processDetail</span> (<span class="params">schema, detail</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'detail'</span></span><br><span class="line">  processEnums(schema, detail.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processCreate</span> (<span class="params">schema, create</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'create'</span></span><br><span class="line">  processEnums(schema, create.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processSearch</span>(<span class="params">schema, search</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'search'</span></span><br><span class="line">  processEnums(schema, search.enums)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>context 是不是相当于一个媒介，只需要在关键节点记录数据，消费的时候读取自己需要的数据。<br>有点 in memory file 的感觉，把信息的记录和消费分离，其实大部分进程间沟通也可以理解为 in memory file。</p>
+<p>但它的弊端也是很明显的，因为 context 的存在，基本每个函数都被耦合了，<code>context.currentAction</code> 变下记录的 key，就会把 warn 功能给 break。但是 context 的存在明显增加了信息交换的变量，而对于小型模块，对信息交互的需求往往强于解耦。</p>
+<p>这里忍不住插下纯函数。<br>纯函数最近成了高频词，往往提到的好处是：便于调试(解耦的自然结果)。<br>不要忘记任何选择都是 tradeoff。纯函数也一样，它会带来了复杂度的上升（信息交换不便），而且带背景信息的函数更易于对现实建模。</p>
+<h3 id="应用-1"><a href="#应用-1" class="headerlink" title="应用"></a>应用</h3><ul>
+<li>​减少函数的参数</li>
+<li>历史记录影响当前动作的场景（上下文相关）</li>
+</ul>
+<p>Acribus: 大多数辅助函数的参数减少都是通过 context 来做的。</p>
+<p>schart:</p>
+<ul>
+<li>background 单例，记录整个图表库的信息，同时规范信息结构，方便外面编程控制。</li>
+<li>ChartBackground 每个实例记录一个图表的信息，同时规范信息结构，方便外面编程控制。</li>
+</ul>
+<p>这里再总结下：</p>
+<p>弊端：耦合度上升，函数将不在是纯函数；<br>建议：</p>
+<ul>
+<li><p>对外接口上，我偏好 context。因为这对现实能进行比较好的模拟：人的每个动作，都是有「语境」的，函数的行为也会根据之前的记录做调整，用起来更省心，但是把握不好很容易跑到对立面 —— 捉摸不定。</p>
+</li>
+<li><p>有些功能的实现必须要求存在 context，比如因为canvas是 context free的，也就是说，对之前的动作没有记忆。svg 不是，从这个角度看svg更高级点（贴近人的经验）。对修改、撤销这种操作是无能为力的，这也是canvas类库存在的意义，提供一个有记忆的 canvas。</p>
+</li>
+</ul>
+<h2 id="例3"><a href="#例3" class="headerlink" title="例3"></a>例3</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hide(row) &#123;</span><br><span class="line">  <span class="keyword">return</span> row.status !== <span class="number">1</span> &amp;&amp; row.status !== <span class="number">2</span> &amp;&amp; row.status !== <span class="number">6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个很常见的隐藏判断函数，觉得这样写有什么问题？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hide(row) &#123;</span><br><span class="line">  <span class="keyword">return</span> !([<span class="number">1</span>, <span class="number">2</span>, <span class="number">6</span>].includes(row.status))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样是不是感觉好多了。</p>
+<p>迅速理清多态属性的状态流转，需要下面几个信息：</p>
+<ul>
+<li>所有可能的状态</li>
+<li>状态变化的依赖项有哪些</li>
+<li>如何根据这些依赖计算出当前状态</li>
+<li>状态变化时需要执行什么动作</li>
+</ul>
+<p>第一种写法很难理清上面这些。</p>
+<p>关于多态管理，举个之前做过的例子：通过固定配置格式，约束依赖的描述集中。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">interface StateHelperConfig &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 枚举下所有可能得状态，支持下面两种方式：</span></span><br><span class="line"><span class="comment">   * 1. [[</span></span><br><span class="line"><span class="comment">   *      0, // 状态编码</span></span><br><span class="line"><span class="comment">   *     'prepare state' // 状态意思的描述</span></span><br><span class="line"><span class="comment">   *   ]]</span></span><br><span class="line"><span class="comment">   * 2. [</span></span><br><span class="line"><span class="comment">   *       0 // 仅包含状态编码</span></span><br><span class="line"><span class="comment">   *     ]</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * @type &#123;(number[]|[][])&#125;</span></span><br><span class="line"><span class="comment">   * @memberof StateHelperConfig</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  stateEnum: StateEnum;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 注意：deps 必须为 primary value，如果不是，那说明不是源信息，要继续找。</span></span><br><span class="line"><span class="comment">   * 会在 context 上对 deps 求值</span></span><br><span class="line"><span class="comment">   * eg: ['who', 'your', 'name']</span></span><br><span class="line"><span class="comment">   * @type &#123;string[]&#125;</span></span><br><span class="line"><span class="comment">   * @memberof StateHelperConfig</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  deps: string[];</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 根据 deps 计算当前的 state，注意：只能根据 deps 的值进行计算，</span></span><br><span class="line"><span class="comment">   * 如果发现还依赖其他的值，应该把它也声明为 deps</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * 传入的参数和 deps 声明的顺序一致</span></span><br><span class="line"><span class="comment">   * @type &#123;Function&#125;</span></span><br><span class="line"><span class="comment">   * @memberof StateHelperConfig</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  calculateStateFromDeps: <span class="built_in">Function</span>;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 每个状态触发的对应动作</span></span><br><span class="line"><span class="comment">   * @type &#123;Function&#125;</span></span><br><span class="line"><span class="comment">   * @memberof StateHelperConfig</span></span><br><span class="line"><span class="comment">   * @param &#123;number&#125; currentState - 当前的状态</span></span><br><span class="line"><span class="comment">   * @param &#123;Function&#125; setDep - 改变依赖的值，会导致重新计算 currentState</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  handler: <span class="built_in">Function</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用-2"><a href="#应用-2" class="headerlink" title="应用"></a>应用</h3><p>Acribus 中 deps：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Schema.Select(<span class="string">'Seg Floor Col'</span>, <span class="string">'seg_floor_col'</span>, [], <span class="literal">false</span>, &#123;</span><br><span class="line">  props: &#123; <span class="attr">filterable</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">  deps: [<span class="string">'whs_id'</span>, <span class="string">'zone_id'</span>, <span class="string">'pathway_id'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">whs_id, zone_id, pathway_id</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (whs_id &amp;&amp; zone_id &amp;&amp; pathway_id) &#123;</span><br><span class="line">      <span class="keyword">this</span>.$field.items = api.col(&#123; whs_id, zone_id, pathway_id &#125;).then(<span class="function"><span class="params">d</span> =&gt;</span> d.results.map(<span class="function"><span class="params">t</span> =&gt;</span> (&#123;</span><br><span class="line">        label: t.text,</span><br><span class="line">        value: t.id</span><br><span class="line">      &#125;)))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>当然涉及多个变量互相的依赖的情况，比如上面，还没这么简单，这时还有依赖的计算次序问题，其实是求拓扑排序，这个就不展开了。</p>
+<h2 id="例4"><a href="#例4" class="headerlink" title="例4"></a>例4</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 收集用户输入的 UID</span></span><br><span class="line">&lt;collectUids data=<span class="string">'data'</span> on-finish=<span class="string">'finish'</span> on-cancel=<span class="string">'cancel'</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">collectUids</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>收集uid输入的一个弹出框：里面包含删除操作和去重逻辑。</p>
+<p>组件 -&gt; 服务:</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> selectSku = <span class="function"><span class="keyword">function</span> (<span class="params">view, slotName, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> finish = <span class="function"><span class="params">input</span> =&gt;</span> &#123;</span><br><span class="line">      resolve(input)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> cancel = <span class="function"><span class="params">reason</span> =&gt;</span> &#123;</span><br><span class="line">      reject(reason)</span><br><span class="line">    &#125;</span><br><span class="line">    $store.state[<span class="string">`<span class="subst">$&#123;view&#125;</span>View`</span>].slots[<span class="string">`<span class="subst">$&#123;slotName&#125;</span>`</span>] = <span class="xml"><span class="tag">&lt;<span class="name">collectUids</span> <span class="attr">data</span>=<span class="string">'data'</span></span></span></span><br><span class="line"><span class="xml">    on-finish='finish' on-cancel='cancel'&gt;<span class="tag">&lt;/<span class="name">collectUids</span>&gt;</span></span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>当时使用组件的目的是为了得到输出且这种输出只发生一次时，适合组件服务化。</p>
+<p>注意：是一次，无法得到多次输出。比如用户点击完 save 后弹窗不关闭，还可以继续输入，这时就不适合服务化了，适合使用事件。</p>
+<h3 id="应用-3"><a href="#应用-3" class="headerlink" title="应用"></a>应用</h3><p>Acribus 视图组合的服务化：</p>
+<p>之前任一视图组合通过路由触达，</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/$&#123;resourceName&#125;/:action?<span class="regexp">/:subView?/</span>:subAction?<span class="string">`</span></span><br></pre></td></tr></table></figure>
+
+<p>路由触达的弊端比较明显：</p>
+<ul>
+<li>对视图如何展示控制有限（传参麻烦）</li>
+<li>无法接受视图反馈</li>
+</ul>
+<p>把所有的子视图服务化，比如展示创建视图，之前的办法是：路由到 /${resourceName}/add`<br>现在可以这样做：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> userInputs = <span class="keyword">await</span> addService(resourceName)</span><br><span class="line"><span class="comment">// do sth with user input</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="一个库怎样才算好用"><a href="#一个库怎样才算好用" class="headerlink" title="一个库怎样才算好用"></a>一个库怎样才算好用</h2><p>和用户最近的是接口，所以如何设计接口直接关系易用性。</p>
+<p>接口的风格可以大致分为：</p>
+<ul>
+<li>声明式：表达”要什么“，表现往往是配置。</li>
+<li>命令式：表达”要怎样“，往往表现为函数。</li>
+</ul>
+<p>这里又是另一个权衡：<br>显然声明式是易用的，怎么做都被下层消化了，但是支持的功能和配置数量是正相关的，如果支持的功能很丰富，就会出现 ECharts 的现状。<br>命令式，意味着上层对下层有更大的控制能力（灵活），可以按照需求要求下层以某种方式处理。但无疑是繁琐的。</p>
+<p>有没有办法简洁和灵活兼得呢？<br>Schart 常用功能配置完成，复杂功能编程控制，同时兼顾简洁和灵活。</p>
+<h3 id="好用的另一个指标"><a href="#好用的另一个指标" class="headerlink" title="好用的另一个指标"></a>好用的另一个指标</h3><p>学习成本低。<br>如果新的东西越能迅速和以前的经验关联起来，学习的成本越低。</p>
+<p>Angular 和 Vue 就是两个对比鲜明的例子。</p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>好用涉及的方面：</p>
+<ul>
+<li>上手时<ul>
+<li>成本低<ul>
+<li>新概念</li>
+<li>API 个数和 API 的参数个数</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>使用时<ul>
+<li>简洁</li>
+<li>灵活</li>
+</ul>
+</li>
+</ul>
+<h3 id="所以结束了吗"><a href="#所以结束了吗" class="headerlink" title="所以结束了吗"></a>所以结束了吗</h3><img style="" data-natural-width="480" data-natural-height="480" data-lazy-loaded="" src="https://s3.amazonaws.com/media-p.slid.es/uploads/559068/images/6552941/67f6202aaa9687286f18361633c3567f.jpg">
+
+<p>当你的库不能满足使用者的功能需求时，<br>使用者就转变成了开发者。<br>而这几乎总会发生。</p>
+<p>这时就要考虑是否易扩展，代码结构是否清晰等。</p>
+<ul>
+<li>对使用者：关心的是好用</li>
+<li>对开发者：关心的是易维护、易扩展</li>
+</ul>
+<p>这是另一个话题了，且见下回分解。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/08/18/another-ts/" rel="next" title="另外一份 TS 教程">
+                  <i class="fa fa-chevron-left"></i> 另外一份 TS 教程
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#相关库"><span class="nav-number">1.</span> <span class="nav-text">相关库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例1"><span class="nav-number">2.</span> <span class="nav-text">例1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#应用"><span class="nav-number">2.1.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-form-组件的设计"><span class="nav-number">2.1.1.</span> <span class="nav-text">1. form 组件的设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-VScode"><span class="nav-number">2.1.2.</span> <span class="nav-text">2. VScode</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例2"><span class="nav-number">3.</span> <span class="nav-text">例2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#应用-1"><span class="nav-number">3.1.</span> <span class="nav-text">应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例3"><span class="nav-number">4.</span> <span class="nav-text">例3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#应用-2"><span class="nav-number">4.1.</span> <span class="nav-text">应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例4"><span class="nav-number">5.</span> <span class="nav-text">例4</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用-3"><span class="nav-number">5.2.</span> <span class="nav-text">应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个库怎样才算好用"><span class="nav-number">6.</span> <span class="nav-text">一个库怎样才算好用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#好用的另一个指标"><span class="nav-number">6.1.</span> <span class="nav-text">好用的另一个指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">6.2.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#所以结束了吗"><span class="nav-number">6.3.</span> <span class="nav-text">所以结束了吗</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">fjywan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoshude" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoshude" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fjywan</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
