@@ -55,7 +55,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https:&#x2F;&#x2F;code.visualstudio.com&#x2F;assets&#x2F;api&#x2F;language-extensions&#x2F;language-server-extension-guide&#x2F;lsp-languages-editors.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;s3.amazonaws.com&#x2F;media-p.slid.es&#x2F;uploads&#x2F;559068&#x2F;images&#x2F;6552941&#x2F;67f6202aaa9687286f18361633c3567f.jpg">
-<meta property="og:updated_time" content="2020-03-27T15:02:14.691Z">
+<meta property="og:updated_time" content="2020-03-28T13:06:00.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;code.visualstudio.com&#x2F;assets&#x2F;api&#x2F;language-extensions&#x2F;language-server-extension-guide&#x2F;lsp-languages-editors.png">
 
@@ -205,7 +205,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-27 23:02:14" itemprop="dateModified" datetime="2020-03-27T23:02:14+08:00">2020-03-27</time>
+                <time title="Modified: 2020-03-28 21:06:00" itemprop="dateModified" datetime="2020-03-28T21:06:00+08:00">2020-03-28</time>
               </span>
 
           
@@ -304,7 +304,7 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processDetail</span> (<span class="params">schema, detail</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'detail'</span></span><br><span class="line">  processEnums(schema, detail.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processCreate</span> (<span class="params">schema, create</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'create'</span></span><br><span class="line">  processEnums(schema, create.enums)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">processSearch</span>(<span class="params">schema, search</span>) </span>&#123;</span><br><span class="line">  context.currentAction = <span class="string">'search'</span></span><br><span class="line">  processEnums(schema, search.enums)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>context 是不是相当于一个媒介，只需要在关键节点记录数据，消费的时候读取自己需要的数据。<br>有点 in memory file 的感觉，把信息的记录和消费分离，其实大部分进程间沟通也可以理解为 in memory file。</p>
-<p>但它的弊端也是很明显的，因为 context 的存在，基本每个函数都被耦合了，<code>context.currentAction</code> 变下记录的 key，就会把 warn 功能给 break。但是 context 的存在明显增加了信息交换的变量，而对于小型模块，对信息交互的需求往往强于解耦。</p>
+<p>但它的弊端也是很明显的，因为 context 的存在，基本每个函数都被耦合了，<code>context.currentAction</code> 变下记录的 key，就会把 warn 功能给 break。但是 context 的存在明显增加了信息交换的便利，而对于小型模块，对信息交互的需求往往强于解耦。</p>
 <p>这里忍不住插下纯函数。<br>纯函数最近成了高频词，往往提到的好处是：便于调试(解耦的自然结果)。<br>不要忘记任何选择都是 tradeoff。纯函数也一样，它会带来了复杂度的上升（信息交换不便），而且带背景信息的函数更易于对现实建模。</p>
 <h3 id="应用-1"><a href="#应用-1" class="headerlink" title="应用"></a>应用</h3><ul>
 <li>​减少函数的参数</li>
@@ -321,7 +321,7 @@
 <ul>
 <li><p>对外接口上，我偏好 context。因为这对现实能进行比较好的模拟：人的每个动作，都是有「语境」的，函数的行为也会根据之前的记录做调整，用起来更省心，但是把握不好很容易跑到对立面 —— 捉摸不定。</p>
 </li>
-<li><p>有些功能的实现必须要求存在 context，比如因为canvas是 context free的，也就是说，对之前的动作没有记忆。svg 不是，从这个角度看svg更高级点（贴近人的经验）。对修改、撤销这种操作是无能为力的，这也是canvas类库存在的意义，提供一个有记忆的 canvas。</p>
+<li><p>有些功能的实现必须要求存在 context，比如修改、撤销这种操作，因为canvas是 context free的，也就是说，对之前的动作没有记忆（svg 不是，从这个角度看svg更高级点，贴近人的经验），必须应用自己记录，这也是canvas类库存在的意义 —— 提供一个有记忆的 canvas。</p>
 </li>
 </ul>
 <h2 id="例3"><a href="#例3" class="headerlink" title="例3"></a>例3</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hide(row) &#123;</span><br><span class="line">  <span class="keyword">return</span> row.status !== <span class="number">1</span> &amp;&amp; row.status !== <span class="number">2</span> &amp;&amp; row.status !== <span class="number">6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -351,7 +351,7 @@
 <p>组件 -&gt; 服务:</p>
  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> selectSku = <span class="function"><span class="keyword">function</span> (<span class="params">view, slotName, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> finish = <span class="function"><span class="params">input</span> =&gt;</span> &#123;</span><br><span class="line">      resolve(input)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> cancel = <span class="function"><span class="params">reason</span> =&gt;</span> &#123;</span><br><span class="line">      reject(reason)</span><br><span class="line">    &#125;</span><br><span class="line">    $store.state[<span class="string">`<span class="subst">$&#123;view&#125;</span>View`</span>].slots[<span class="string">`<span class="subst">$&#123;slotName&#125;</span>`</span>] = <span class="xml"><span class="tag">&lt;<span class="name">collectUids</span> <span class="attr">data</span>=<span class="string">'data'</span></span></span></span><br><span class="line"><span class="xml">    on-finish='finish' on-cancel='cancel'&gt;<span class="tag">&lt;/<span class="name">collectUids</span>&gt;</span></span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>当时使用组件的目的是为了得到输出且这种输出只发生一次时，适合组件服务化。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>当使用组件的目的是为了得到输出且这种输出只发生一次时，适合组件服务化。</p>
 <p>注意：是一次，无法得到多次输出。比如用户点击完 save 后弹窗不关闭，还可以继续输入，这时就不适合服务化了，适合使用事件。</p>
 <h3 id="应用-3"><a href="#应用-3" class="headerlink" title="应用"></a>应用</h3><p>Acribus 视图组合的服务化：</p>
 <p>之前任一视图组合通过路由触达，</p>
