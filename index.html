@@ -491,7 +491,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-27 23:00:25" itemprop="dateModified" datetime="2020-03-27T23:00:25+08:00">2020-03-27</time>
+                <time title="Modified: 2020-03-28 09:49:42" itemprop="dateModified" datetime="2020-03-28T09:49:42+08:00">2020-03-28</time>
               </span>
 
           
@@ -505,8 +505,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>概括一下的话，就是不易读。</p>
-<p>阅读 Vue 源码经常会有这样的感受：仿佛变量一会数字，一会字符串，各种条件覆写，让人琢磨不定。而且，函数内不同平台逻辑通过 if else 杂糅在一起，尽管有些地方使用 curry 化减轻了这种杂糅（比如著名的 patch 函数就是这样生成的）。 依然会让人感觉大脑“内存”不够用。</p>
+          <p>Vue 源码读起来很容易迷惑，需要在脑中申请巨大的缓存，要存下 Vue 整个类的信息，不然独立看一个方法，几乎都读不通的。因为变量的设置和流转在其他地方。仿佛整个 Vue 类就是个 share memory，便捷了信息流转，但任何一个局部都无法再独立。</p>
+<p>这是随着功能增加，复杂度无法降低的原因。同时也使得无论在开发和学习中都无法使用 split &amp; conquer 策略 —— 因为内部千丝万缕的联系，让你不得不一口吞下。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/03/06/vue-after-reading/#more" rel="contents">

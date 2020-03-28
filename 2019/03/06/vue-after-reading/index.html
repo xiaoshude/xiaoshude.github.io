@@ -46,14 +46,14 @@
   };
 </script>
 
-  <meta name="description" content="概括一下的话，就是不易读。 阅读 Vue 源码经常会有这样的感受：仿佛变量一会数字，一会字符串，各种条件覆写，让人琢磨不定。而且，函数内不同平台逻辑通过 if else 杂糅在一起，尽管有些地方使用 curry 化减轻了这种杂糅（比如著名的 patch 函数就是这样生成的）。 依然会让人感觉大脑“内存”不够用。">
+  <meta name="description" content="Vue 源码读起来很容易迷惑，需要在脑中申请巨大的缓存，要存下 Vue 整个类的信息，不然独立看一个方法，几乎都读不通的。因为变量的设置和流转在其他地方。仿佛整个 Vue 类就是个 share memory，便捷了信息流转，但任何一个局部都无法再独立。 这是随着功能增加，复杂度无法降低的原因。同时也使得无论在开发和学习中都无法使用 split &amp;amp; conquer 策略 —— 因为内部千丝万">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Vue 源码读后感">
 <meta property="og:url" content="http:&#x2F;&#x2F;fjywan.com&#x2F;2019&#x2F;03&#x2F;06&#x2F;vue-after-reading&#x2F;index.html">
 <meta property="og:site_name" content="fjywan&#39;s blog">
-<meta property="og:description" content="概括一下的话，就是不易读。 阅读 Vue 源码经常会有这样的感受：仿佛变量一会数字，一会字符串，各种条件覆写，让人琢磨不定。而且，函数内不同平台逻辑通过 if else 杂糅在一起，尽管有些地方使用 curry 化减轻了这种杂糅（比如著名的 patch 函数就是这样生成的）。 依然会让人感觉大脑“内存”不够用。">
+<meta property="og:description" content="Vue 源码读起来很容易迷惑，需要在脑中申请巨大的缓存，要存下 Vue 整个类的信息，不然独立看一个方法，几乎都读不通的。因为变量的设置和流转在其他地方。仿佛整个 Vue 类就是个 share memory，便捷了信息流转，但任何一个局部都无法再独立。 这是随着功能增加，复杂度无法降低的原因。同时也使得无论在开发和学习中都无法使用 split &amp;amp; conquer 策略 —— 因为内部千丝万">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-03-27T15:00:25.134Z">
+<meta property="og:updated_time" content="2020-03-28T01:49:42.293Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://fjywan.com/2019/03/06/vue-after-reading/">
@@ -202,7 +202,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-03-27 23:00:25" itemprop="dateModified" datetime="2020-03-27T23:00:25+08:00">2020-03-27</time>
+                <time title="Modified: 2020-03-28 09:49:42" itemprop="dateModified" datetime="2020-03-28T09:49:42+08:00">2020-03-28</time>
               </span>
 
           
@@ -216,22 +216,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>概括一下的话，就是不易读。</p>
-<p>阅读 Vue 源码经常会有这样的感受：仿佛变量一会数字，一会字符串，各种条件覆写，让人琢磨不定。而且，函数内不同平台逻辑通过 if else 杂糅在一起，尽管有些地方使用 curry 化减轻了这种杂糅（比如著名的 patch 函数就是这样生成的）。 依然会让人感觉大脑“内存”不够用。</p>
+        <p>Vue 源码读起来很容易迷惑，需要在脑中申请巨大的缓存，要存下 Vue 整个类的信息，不然独立看一个方法，几乎都读不通的。因为变量的设置和流转在其他地方。仿佛整个 Vue 类就是个 share memory，便捷了信息流转，但任何一个局部都无法再独立。</p>
+<p>这是随着功能增加，复杂度无法降低的原因。同时也使得无论在开发和学习中都无法使用 split &amp; conquer 策略 —— 因为内部千丝万缕的联系，让你不得不一口吞下。</p>
 <a id="more"></a>
 
 <h2 id="为什么不易读"><a href="#为什么不易读" class="headerlink" title="为什么不易读"></a>为什么不易读</h2><p>其根本原因是 mixin 这种模式的使用。</p>
-<p>Vue 的写法，让 divide &amp; conquer 的学习策略失效，你必须在脑里时刻放着整个大 Vue，它的属性、方法、原型及每个方法受属性影响的分支逻辑，不然下一个方法你很可能看不懂，因为它的行为取决与上面一个超大的 context(Vue)。这里你也可以看到 mixin 的优点，它让信息的交换更便捷，弊端就是几乎没有哪个行为是 context free 的，耦合度大大上升。</p>
-<p>这就是一个库设计的权衡：</p>
-<ul>
-<li>信息交换更便捷</li>
-<li>耦合度（复杂度）更低<br>两个不可兼得。</li>
-</ul>
-<p>mixin 在小型项目或局部是很好的，短平快。如果已经到 Vue 这种，mixin 会导致复杂度慢慢失控。</p>
-<h2 id="从背景理解"><a href="#从背景理解" class="headerlink" title="从背景理解"></a>从背景理解</h2><p>从Vue的起源看，这种设计选择就很容易理解了。<br>Vue 起源于尤大学习 Angular 的一个练手项目。所谓练手，当然怎么顺手怎么来啦，mixin 可谓对数据共享和交换带来极大便利。也正是这种起源，带来了 Vue 的复杂度瓶颈。</p>
-<p>Vue 3 开始打破这种设计，在文档里你会看到一个很高频词：standalone，可以独立使用，也意味着每个功能不再耦合，这让整体复杂度迅速塌陷。</p>
+<p>各种条件覆写，让人琢磨不定。而且，函数内不同平台逻辑通过 if else 杂糅在一起，尽管有些地方使用 curry 化减轻了这种杂糅（比如著名的 patch 函数就是这样生成的）。几乎每个方法是个闭包，它的行为取决与一个超大的 context(Vue)。</p>
+<p>这里你也可以看到 mixin 的优点，它让信息的交换更便捷，弊端就是几乎没有哪个行为是 context free 的，耦合度大大上升。</p>
+<h2 id="从背景理解"><a href="#从背景理解" class="headerlink" title="从背景理解"></a>从背景理解</h2><p>这样设计的原因，大概和 Vue 的起源有关。当初尤大为了学习 Angular 做的一个试验项目。<br>对于一个练手项目，这样做无疑很方便，尤其 mixin 这种特性，在小项目中特别方便。</p>
+<p>mixin 在小型项目或局部是很好的，短平快；但在大项目可能就是”恶魔“ —— 捉摸不定的覆写、对类行为的无法预测。mixin 在导致 Vue 复杂度慢慢失控。当上升到一定程度，会使 Vue 处于危险的边缘 —— 参与开发的难度越来越大，越来越容易出错。</p>
+<p>Vue 3 开始纠正这个问题，在文档里你会看到一个很高频词：standalone，可以独立使用，也意味着每个功能不再耦合，这让整体复杂度迅速塌陷。</p>
 <p>说到这，忍不住想插一腿 React。因为这种从背景考察的方式，也会让你迅速理解 React 设计选择，比如为什么用 setState，主动告知状态变动，而不像 Vue 自动搜集。</p>
-<p>回过来，大多数复杂系统的设计，多会看到分层，比如操作系统、网络包的发送与解析等。这种设计和常说的管道模式有相似的感觉。不过说管道时，更多从数据流动的角度观察。各个功能解耦，但代价是，信息流动需要在不同格式之间倒腾。<br>不过相对于复杂度的降低来说，这些弊端是微不足道。</p>
+<p>回过来，大多数复杂系统的设计，多会看到分层，比如操作系统、网络包的发送与解析等。这种设计和常说的管道模式有相似的感觉。不过说管道时，更多从数据流动的角度观察。<br>所以少有复杂系统会采用 Vue 这种做法，因为 unix 的哲学绝对是血的教训 —— 各个功能解耦，稍微牺牲信息交换效率。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>信息交换更便捷</li>
+<li>耦合度（复杂度）更低</li>
+</ul>
+<p>这是一个权衡，没有好坏之分，只有是否适合。</p>
 
     </div>
 
@@ -294,7 +295,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么不易读"><span class="nav-number">1.</span> <span class="nav-text">为什么不易读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从背景理解"><span class="nav-number">2.</span> <span class="nav-text">从背景理解</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么不易读"><span class="nav-number">1.</span> <span class="nav-text">为什么不易读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从背景理解"><span class="nav-number">2.</span> <span class="nav-text">从背景理解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
